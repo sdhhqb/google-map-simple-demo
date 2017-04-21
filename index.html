@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- This stylesheet contains specific styles for displaying the map
+         on this page. Replace it with your own styles as described in the
+         documentation:
+         https://developers.google.com/maps/documentation/javascript/tutorial -->
+    <!-- <link rel="stylesheet" href="/maps/documentation/javascript/demos/demos.css"> -->
+    <title>test google map</title>
+    <style>
+    	html, body {
+    		margin: 0;
+    		padding: 0;
+    		height: 100%;
+    	}
+      .wrapper {
+        box-sizing: border-box;
+        padding-top: 30px;
+        height: 100%;
+        min-height: 500px;
+      }
+    	#map {
+    		height: 100%;
+    	}
+    </style>
+    <!-- https://github.com/wandergis/coordtransform -->
+    <script src="./node_modules/coordtransform/index.js"></script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div id="map"></div>
+    </div>
+    <script>
+      // 转换wgs84到gcj02
+      var wgs84togcj02 = coordtransform.wgs84togcj02(104.061190, 30.544318);
+      
+      // 不转换，使用原始的wgs84
+    	// var wgs84togcj02 = [104.061190, 30.544318];
+      
+    	console.log('wgs84togcj02', wgs84togcj02);
+
+      if ("geolocation" in navigator) {
+        var options = {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0
+        };
+
+        console.log(1);
+        navigator.geolocation.getCurrentPosition(function(pos){
+            console.log('pos', pos);
+          }, function (err) {
+            console.log(err);
+          },
+          options
+        );
+      } else {
+        console.log(2);
+      }
+
+      function initMap() {
+        // console.log('google.loader.ClientLocation', google.loader.ClientLocation);
+
+        // Create a map object and specify the DOM element for display.
+        var map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 30.544, lng: 104.061},
+          scrollwheel: true,
+          zoom: 12,
+          streetViewControl: false,
+          scaleControl: true
+        });
+
+        var myLatLng = {lat: wgs84togcj02[1], lng: wgs84togcj02[0]};
+
+        var marker = new google.maps.Marker({
+          position: myLatLng,
+          map: map,
+          title: 'Hello World!'
+        }); 
+
+        var marker = new google.maps.Marker({
+          position: {lng: 104.061190, lat: 30.544318},
+          map: map,
+          icon: '/box.png'
+        });
+
+        var geocoder = new google.maps.Geocoder();
+
+        geocoder.geocode({'address': '成都双流'}, function (re, st) {
+          console.log(re, st, re[0].geometry.location.lat(), re[0].geometry.location.lng()
+            );
+          var marker = new google.maps.Marker({
+              map: map,
+              position: re[0].geometry.location
+            });
+          setTimeout(function () {
+            map.setCenter(re[0].geometry.location);            
+          }, 2000);
+        }) 
+      }
+
+    </script>
+    <!-- <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCToPVvkDSd8Bwig4tSAITGadcKJcrP3Pk&callback=initMap"async defer></script> -->
+    <script src="http://ditu.google.cn/maps/api/js?key=AIzaSyCToPVvkDSd8Bwig4tSAITGadcKJcrP3Pk&callback=initMap"async defer></script>
+  </body>
+</html>
